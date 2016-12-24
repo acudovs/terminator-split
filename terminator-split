@@ -16,7 +16,7 @@ import configobj
 
 __author__ = 'Aleksey Chudov <aleksey.chudov@gmail.com>'
 __date__ = '24 Dec 2016'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 
 class TerminatorSplit(object):
@@ -36,26 +36,28 @@ class TerminatorSplit(object):
         self._launch_terminator()
 
     def _parse_args(self):
-        usage = """terminator-split [-h] [--debug]
-                [--config CONFIG]
-                [--command COMMAND]
-                [--terminator TERMINATOR]
-                [TERMINATOR_OPTIONS]
-                hostname [hostname ...]
+        usage = """terminator-split [-h] [-d]
+                        [-e COMMAND] [-g CONFIG] [-t TERMINATOR]
+                        [TERMINATOR_OPTIONS]
+                        hostname [hostname ...]
         """
         parser = argparse.ArgumentParser(usage=usage)
-        parser.add_argument('--debug', action='store_const', dest='level',
+        parser.add_argument('-d', '--debug', action='store_const', dest='level',
                             const='DEBUG', default='INFO')
-        parser.add_argument('--config')
-        parser.add_argument('--command')
-        parser.add_argument('--terminator')
+        parser.add_argument('-e', '--command')
+        parser.add_argument('-g', '--config')
+        parser.add_argument('-t', '--terminator')
         parser.add_argument('hostname', nargs='+')
         namespace = argparse.Namespace(**self.DEFAULT)
         return parser.parse_known_args(namespace=namespace)
 
+    def _is_debug(self):
+        return self._args.level == 'DEBUG'
+
     def _logging(self):
-        logging.basicConfig(level=self._args.level)
-        logging.debug(self._args)
+        logging.basicConfig(format='%(message)s', level=self._args.level)
+        logging.debug('args:{}'.format(self._args))
+        logging.debug('unknown_args:{}'.format(self._unknown_args))
 
     def _write_config(self):
         config = configobj.ConfigObj(self._args.config)
@@ -63,7 +65,7 @@ class TerminatorSplit(object):
         with tempfile.NamedTemporaryFile(delete=False) as tmp:
             config.filename = tmp.name
             config.write()
-        logging.debug("{}:'{}'".format(config.filename, config))
+        logging.debug("config:{}:'{}'".format(config.filename, config))
         return config.filename
 
     def _update_layout(self, config):
@@ -135,8 +137,7 @@ class TerminatorSplit(object):
         os.execl(self._args.terminator, self._args.terminator,
                  '-g', self._config, *self._unknown_args)
 
-    @staticmethod
-    def _demonize(chdir='/', umask=0):
+    def _demonize(self, chdir='/', max_fd=1024, umask=0):
         """
         http://code.activestate.com/recipes/278731-creating-a-daemon-the-python-way/
         """
@@ -150,15 +151,22 @@ class TerminatorSplit(object):
         if os.fork():
             os._exit(0)
 
-        for fd in range(resource.getrlimit(resource.RLIMIT_NOFILE)[0]):
+        start_fd = 0
+        stop_fd = max(max_fd, resource.getrlimit(resource.RLIMIT_NOFILE)[0])
+
+        if self._is_debug():
+            start_fd = 4
+
+        for fd in range(start_fd, stop_fd):
             try:
                 os.close(fd)
             except OSError:
                 pass
 
-        os.open(os.devnull, os.O_RDWR)
-        os.dup2(0, 1)
-        os.dup2(0, 2)
+        if not self._is_debug():
+            os.open(os.devnull, os.O_RDWR)
+            os.dup2(0, 1)
+            os.dup2(0, 2)
 
 
 if __name__ == '__main__':

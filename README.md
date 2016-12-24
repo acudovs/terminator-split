@@ -3,23 +3,21 @@ Wrapper script for splitting Terminator terminal emulator
 
 ```shell
 $ terminator-split --help
-usage: terminator-split [-h] [--debug]
-                [--config CONFIG]
-                [--command COMMAND]
-                [--terminator TERMINATOR]
-                [TERMINATOR_OPTIONS]
-                hostname [hostname ...]
-        
+usage: terminator-split [-h] [-d]
+                        [-e COMMAND] [-g CONFIG] [-t TERMINATOR]
+                        [TERMINATOR_OPTIONS]
+                        hostname [hostname ...]
+
 
 positional arguments:
   hostname
 
 optional arguments:
   -h, --help            show this help message and exit
-  --debug
-  --config CONFIG
-  --command COMMAND
-  --terminator TERMINATOR
+  -d, --debug
+  -e COMMAND, --command COMMAND
+  -g CONFIG, --config CONFIG
+  -t TERMINATOR, --terminator TERMINATOR
 ```
 
 ```shell
