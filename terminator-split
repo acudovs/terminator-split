@@ -15,8 +15,8 @@ import tempfile
 import configobj
 
 __author__ = 'Aleksey Chudov <aleksey.chudov@gmail.com>'
-__date__ = '24 Dec 2016'
-__version__ = '1.0.1'
+__date__ = '22 Jan 2017'
+__version__ = '1.0.2'
 
 
 class TerminatorSplit(object):
@@ -152,7 +152,7 @@ class TerminatorSplit(object):
             os._exit(0)
 
         start_fd = 0
-        stop_fd = max(max_fd, resource.getrlimit(resource.RLIMIT_NOFILE)[0])
+        stop_fd = max(max_fd, resource.getrlimit(resource.RLIMIT_NOFILE)[1])
 
         if self._is_debug():
             start_fd = 4
