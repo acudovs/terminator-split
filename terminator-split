@@ -15,8 +15,8 @@ import tempfile
 import configobj
 
 __author__ = 'Aleksey Chudov <aleksey.chudov@gmail.com>'
-__date__ = '22 Jan 2017'
-__version__ = '1.0.2'
+__date__ = '26 Aug 2017'
+__version__ = '1.0.3'
 
 
 class TerminatorSplit(object):
@@ -24,6 +24,7 @@ class TerminatorSplit(object):
     DEFAULT = {
         'config': os.path.expanduser('~/.config/terminator/config'),
         'command': "ssh '{}'",
+        'shell': 'bash -l',
         'terminator': '/usr/bin/terminator'
     }
 
@@ -36,20 +37,31 @@ class TerminatorSplit(object):
         self._launch_terminator()
 
     def _parse_args(self):
-        usage = """terminator-split [-h] [-d]
+        usage = """
+        terminator-split [-h] [-d]
                         [-e COMMAND] [-g CONFIG] [-t TERMINATOR]
                         [TERMINATOR_OPTIONS]
                         hostname [hostname ...]
+
+        terminator-split [-h] [-d]
+                        [-g CONFIG] [-t TERMINATOR] [-s SHELL]
+                        [TERMINATOR_OPTIONS]
+                        number
         """
         parser = argparse.ArgumentParser(usage=usage)
         parser.add_argument('-d', '--debug', action='store_const', dest='level',
                             const='DEBUG', default='INFO')
         parser.add_argument('-e', '--command')
         parser.add_argument('-g', '--config')
+        parser.add_argument('-s', '--shell')
         parser.add_argument('-t', '--terminator')
         parser.add_argument('hostname', nargs='+')
         namespace = argparse.Namespace(**self.DEFAULT)
-        return parser.parse_known_args(namespace=namespace)
+        args, unknown_args = parser.parse_known_args(namespace=namespace)
+        if len(args.hostname) == 1 and args.hostname[0].isdigit():
+            args.command = args.shell
+            args.hostname = range(int(args.hostname[0]))
+        return args, unknown_args
 
     def _is_debug(self):
         return self._args.level == 'DEBUG'
