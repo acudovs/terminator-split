@@ -29,7 +29,11 @@ optional arguments:
 
 ```shell
 terminator-split -m server1 server2 server3 server4
+```
+
 Note that the username can also be specified as part of the servername. Eg:
+
+```shell
 terminator-split -m user1@server1 user2@server2 user3@server3 user4@server4
 ```
 
