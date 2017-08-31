@@ -24,7 +24,7 @@ optional arguments:
   -e COMMAND, --command COMMAND
   -g CONFIG, --config CONFIG              Use this terminator config file
   -s SHELL, --shell SHELL                 Specify the shell to be loaded
-  -t TERMINATOR, --terminator TERMINATOR  
+  -t TERMINATOR, --terminator TERMINATOR
 ```
 
 ```shell
