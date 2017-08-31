@@ -52,7 +52,7 @@ class TerminatorSplit(object):
         parser.add_argument('-d', '--debug', action='store_const', dest='level',
                             const='DEBUG', default='INFO', help='show debug messages at execution time')
         parser.add_argument('-e', '--command')
-        parser.add_argument('-g', '--config',help='Use this terminator config file')
+        parser.add_argument('-g', '--config', help='Use this terminator config file')
         parser.add_argument('-s', '--shell', help='Specify the shell to be loaded')
         parser.add_argument('-t', '--terminator')
         parser.add_argument('hostname', nargs='+')
